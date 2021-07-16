@@ -63,7 +63,11 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 SetCapsLockState, alwaysoff ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
 global SkillBarModCounter := 1
-global SkillBarModDiv := 3
+global SkillBarOneTimeInputModIsActive := false
+global SkillBarOneTimeInputModCounter := 1
+global IsSoftSuspended := false
+global SkillBarModDebug := false
+global IsDebugMode := false
 
 ActivateDebugHotkeys()
 ActivateHotkeys()
@@ -90,9 +94,14 @@ LabelReload:
 
 ActivateHotkeys() 
 {
-    Hotkey, ^Numpad1, LabelChangeBarTo1Perm
-    Hotkey, ^Numpad2, LabelChangeBarTo2Temp
-    Hotkey, ^Numpad3, LabelChangeBarTo3Temp
+    Hotkey, ^1, LabelChangeBarTo1Perm
+    Hotkey, ^2, LabelChangeBarTo2Perm
+    Hotkey, ^3, LabelChangeBarTo3Perm
+    Hotkey, ^4, LabelChangeBarToDebug
+
+    Hotkey, +1, LabelChangeBarTo1Tmp
+    Hotkey, +2, LabelChangeBarTo2Tmp
+    Hotkey, +3, LabelChangeBarTo3Tmp
 
     Hotkey, Numpad1, LabelNumpad1
     Hotkey, Numpad2, LabelNumpad2
@@ -105,153 +114,144 @@ ActivateHotkeys()
     Hotkey, Numpad9, LabelNumpad9
     Hotkey, NumpadDot, LabelNumpadDot
 
-    Hotkey, F9, LabelChangeSkillBar
+    Hotkey, F9, SoftSuspend
     
     return
 }
 
 LabelChangeBarTo1Perm:
-    SkillBarModCounter := 1
+    FunctionChangeBarToPerm(1)
+    return
+LabelChangeBarTo2Perm:
+    FunctionChangeBarToPerm(2)
+    return
+LabelChangeBarTo3Perm:
+    FunctionChangeBarToPerm(3)
+    return
+LabelChangeBarToDebug:
+    FunctionChangeBarToDebug()
     return
 
-LabelChangeBarTo2Temp:
-    SkillBarModCounter := 2
-    sleep 1000
-    if (GetKeyState("shift")) {
+FunctionChangeBarToDebug() {
+    global IsSoftSuspended
+    global SkillBarModDebug
+    if (IsSoftSuspended) {
         return
     }
-    SkillBarModCounter := 1
-    return
-
-LabelChangeBarTo3Temp:
-    SkillBarModCounter := 3
-    sleep 1000
-    if (GetKeyState("shift")) {
-        return
-    }
-    SkillBarModCounter := 1
-    return
-
-LabelChangeSkillBar:
-    SkillBarModCounter := Mod(SkillBarModCounter, SkillBarModDiv)
-    SkillBarModCounter++
-    msg := "SkillBarModCounter is " . SkillBarModCounter
+    msg := "Debug"
     MsgBox, %msg%
+    SkillBarModDebug := true
+}
+
+FunctionChangeBarToPerm(skill) {
+    global IsSoftSuspended
+    global SkillBarModCounter
+    global SkillBarModDebug
+    if (IsSoftSuspended) { 
+        return 
+    }
+    SkillBarModCounter := skill
+    SkillBarModDebug := false
+    return
+}
+
+LabelChangeBarTo1Tmp:
+    FunctionChangeBarToTmp(1)
+    return
+
+LabelChangeBarTo2Tmp:
+    FunctionChangeBarToTmp(2)
+    return
+
+LabelChangeBarTo3Tmp:
+    FunctionChangeBarToTmp(3)
+    return
+
+FunctionChangeBarToTmp(skill) {
+    global IsSoftSuspended
+    global SkillBarOneTimeInputModIsActive
+    global SkillBarOneTimeInputModCounter
+    global SkillBarModDebug
+    global IsDebugMode
+    if (IsSoftSuspended) { ; ahk does nopt like oneline -- if (IsSoftSuspended) return
+        return 
+    }
+    SkillBarModDebug := false
+    SkillBarOneTimeInputModIsActive := true
+    SkillBarOneTimeInputModCounter := skill
+    if (IsDebugMode) {
+        msg := "LabelChangeBarToTmp SkillBarModCounter is " . SkillBarOneTimeInputModCounter
+        MsgBox, %msg%
+    }
+    return
+}
+
+SoftSuspend:
+    IsSoftSuspended := !IsSoftSuspended
     return
 
 
 LabelNumpad1:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("1")
-        case 2:
-            Remap("!")
-        case 3:
-            Remap("=")
-    }
-    return
+    Remap(["1", "!", "="])   ; "!"" is funky - calls LabelChangeBarTo1Tmp
+    Return
 LabelNumpad2:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("2")
-        case 2:
-            Remap("?")
-        case 3:
-            Remap(":")
-    }
-    return
+    Remap(["2", "?", ":"])
+    Return
 LabelNumpad3:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("3")
-        case 2:
-            Remap("&")
-        case 3:
-            Remap("|")
-    }
+    Remap(["3", "&", "|"])
     Return
 LabelNumpad4:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("4")
-        case 2:
-            Remap("""") ; Parameter is "
-        case 3:
-            Remap("'")
-    }
+    Remap(["4", """", "'"])   ; "" is ", """" is funky - calls LabelChangeBarTo2Tmp
     Return
 LabelNumpad5:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("5")
-        case 2:
-            Remap("<")
-        case 3:
-            Remap(">")
-    }
+    Remap(["5", "<", ">"])
     Return
 LabelNumpad6:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("6")
-        case 2:
-            Remap("*")
-        case 3:
-            Remap("/")
-    }
+    Remap(["6", "*", "/"])
     Return
 LabelNumpad7:
-    switch SkillBarModCounter 
-    {        
-        case 1:
-            Remap("7")
-        case 2:
-            Remap("(")
-        case 3:
-            Remap(")")
-    }
+    Remap(["7", "(", ")"])
     Return
 LabelNumpad8:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("8")
-        case 2:
-            Remap("[")
-        case 3:
-            Remap("]")
-    }
+    Remap(["8", "[", "]"])
     Return
 LabelNumpad9:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap("9")
-        case 2:
-            Remap("{")
-        case 3:
-            Remap("}")
-    }
-    Return
-LabelNumpadDot:
-    switch SkillBarModCounter 
-    {
-        case 1:
-            Remap(".")
-        case 2:
-            Remap("$")
-        case 3:
-            Remap("\")
-    }
+    Remap(["9", "{", "}"])
     Return
 
-Remap(key)
+LabelNumpadDot:
+    Remap([".", "$", "\"])
+    Return
+
+
+Remap(keyarr)
 {
-    SendInput {%key%}
+    global IsDebugMode
+    if (IsSoftSuspended) {
+        SendInput %A_ThisHotkey%
+        return
+    }
+    if (SkillBarModDebug) {
+        SendInput {!}
+        return
+    }
+    sendVal := ""
+    if (SkillBarOneTimeInputModIsActive) {
+        sendVal := keyarr[SkillBarOneTimeInputModCounter]
+        SkillBarOneTimeInputModIsActive := false
+        if (IsDebugMode) {
+            msgs := "SkillBarOneTimeInputModIsActive"
+            MsgBox, %msgs%
+        }
+    } else {
+        sendVal := keyarr[SkillBarModCounter]
+    }
+    
+    if (IsDebugMode) {
+        msgs := "sendVal is " . sendVal
+        MsgBox, %msgs%
+    }
+    SendInput {%sendVal%}
+
+    return
 }
