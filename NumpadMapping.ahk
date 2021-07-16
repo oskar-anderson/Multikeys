@@ -62,15 +62,14 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 SetCapsLockState, alwaysoff ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
-global SkillBarModCounter := 1
-global SkillBarOneTimeInputModIsActive := false
-global SkillBarOneTimeInputModCounter := 1
-global IsSoftSuspended := false
-global SkillBarModDebug := false
-global IsDebugMode := false
+global skillBarModCounter := 1
+global skillBarOneTimeInputModCounter := -1
+global skillBarModDebug := false
+global isSoftSuspended := false
+global IS_DEBUG_MODE := false
 
 ActivateDebugHotkeys()
-ActivateHotkeys()
+ActivateAllHotkeys(False)
 
 return
 
@@ -92,164 +91,170 @@ LabelReload:
     return
 ; endregion
 
-ActivateHotkeys() 
+ActivateAllHotkeys(isDisable = False) 
 {
-    Hotkey, ^1, LabelChangeBarTo1Perm
-    Hotkey, ^2, LabelChangeBarTo2Perm
-    Hotkey, ^3, LabelChangeBarTo3Perm
-    Hotkey, ^4, LabelChangeBarToDebug
+    Hotkey, F9, LabelSoftSuspend
+    ActivateMainHotkeys(isDisable) 
+    return
+}
 
-    Hotkey, +1, LabelChangeBarTo1Tmp
-    Hotkey, +2, LabelChangeBarTo2Tmp
-    Hotkey, +3, LabelChangeBarTo3Tmp
+ActivateMainHotkeys(isDisable = False) 
+{
+    state := isDisable ? "Off" : "On"
+    Hotkey, ^1, LabelChangeBarTo1Perm, %state%
+    Hotkey, ^2, LabelChangeBarTo2Perm, %state%
+    Hotkey, ^3, LabelChangeBarTo3Perm, %state%
+    Hotkey, ^4, LabelChangeBarToDebug, %state%
 
-    Hotkey, Numpad1, LabelNumpad1
-    Hotkey, Numpad2, LabelNumpad2
-    Hotkey, Numpad3, LabelNumpad3
-    Hotkey, Numpad4, LabelNumpad4
-    Hotkey, Numpad5, LabelNumpad5
-    Hotkey, Numpad6, LabelNumpad6
-    Hotkey, Numpad7, LabelNumpad7
-    Hotkey, Numpad8, LabelNumpad8
-    Hotkey, Numpad9, LabelNumpad9
-    Hotkey, NumpadDot, LabelNumpadDot
+    Hotkey, +1, LabelChangeBarTo1Tmp, %state%
+    Hotkey, +2, LabelChangeBarTo2Tmp, %state%
+    Hotkey, +3, LabelChangeBarTo3Tmp, %state%
 
-    Hotkey, F9, SoftSuspend
+    Hotkey, Numpad1, LabelNumpad1, %state%
+    Hotkey, Numpad2, LabelNumpad2, %state%
+    Hotkey, Numpad3, LabelNumpad3, %state%
+    Hotkey, Numpad4, LabelNumpad4, %state%
+    Hotkey, Numpad5, LabelNumpad5, %state%
+    Hotkey, Numpad6, LabelNumpad6, %state%
+    Hotkey, Numpad7, LabelNumpad7, %state%
+    Hotkey, Numpad8, LabelNumpad8, %state%
+    Hotkey, Numpad9, LabelNumpad9, %state%
+    Hotkey, NumpadDot, LabelNumpadDot, %state%
     
     return
 }
+; ########################
+; ######   LABELS   ######
+; ########################
 
 LabelChangeBarTo1Perm:
-    FunctionChangeBarToPerm(1)
+    new KeyMapping().FunctionChangeBarToPerm(1)
     return
 LabelChangeBarTo2Perm:
-    FunctionChangeBarToPerm(2)
+    new KeyMapping().FunctionChangeBarToPerm(2)
     return
 LabelChangeBarTo3Perm:
-    FunctionChangeBarToPerm(3)
+    new KeyMapping().FunctionChangeBarToPerm(3)
     return
 LabelChangeBarToDebug:
-    FunctionChangeBarToDebug()
+    new KeyMapping().FunctionChangeBarToDebug()
     return
 
-FunctionChangeBarToDebug() {
-    global IsSoftSuspended
-    global SkillBarModDebug
-    if (IsSoftSuspended) {
+class KeyMapping {
+    FunctionChangeBarToDebug() {
+        global skillBarModDebug
+        msg := "Debug"
+        MsgBox, %msg%
+        skillBarModDebug := true
+    }
+
+    FunctionChangeBarToPerm(skill) {
+        global skillBarModCounter
+        global skillBarModDebug
+        skillBarModCounter := skill
+        skillBarModDebug := false
         return
     }
-    msg := "Debug"
-    MsgBox, %msg%
-    SkillBarModDebug := true
+
+    FunctionChangeBarToTmp(skill) {
+        global skillBarOneTimeInputModCounter
+        global skillBarModDebug
+        global IS_DEBUG_MODE
+        skillBarModDebug := false
+        skillBarOneTimeInputModCounter := skill
+        if (IS_DEBUG_MODE) {  ; ahk does not like oneline -- if (condition) return
+            msg := "LabelChangeBarToTmp skillBarOneTimeInputModCounter is " . skillBarOneTimeInputModCounter
+            MsgBox, %msg%
+        }
+        return
+    }
+
+    FunctionSoftSuspend() {
+        global isSoftSuspended
+
+        isSoftSuspended := !isSoftSuspended
+        ActivateMainHotkeys(isSoftSuspended)
+        msgs := "isSoftSuspended: " . isSoftSuspended
+        MsgBox, %msgs%
+        return
+    }
+
 }
 
-FunctionChangeBarToPerm(skill) {
-    global IsSoftSuspended
-    global SkillBarModCounter
-    global SkillBarModDebug
-    if (IsSoftSuspended) { 
-        return 
-    }
-    SkillBarModCounter := skill
-    SkillBarModDebug := false
-    return
-}
 
 LabelChangeBarTo1Tmp:
-    FunctionChangeBarToTmp(1)
+    new KeyMapping().FunctionChangeBarToTmp(1)
     return
 
 LabelChangeBarTo2Tmp:
-    FunctionChangeBarToTmp(2)
+    new KeyMapping().FunctionChangeBarToTmp(2)
     return
 
 LabelChangeBarTo3Tmp:
-    FunctionChangeBarToTmp(3)
+    new KeyMapping().FunctionChangeBarToTmp(3)
     return
 
-FunctionChangeBarToTmp(skill) {
-    global IsSoftSuspended
-    global SkillBarOneTimeInputModIsActive
-    global SkillBarOneTimeInputModCounter
-    global SkillBarModDebug
-    global IsDebugMode
-    if (IsSoftSuspended) { ; ahk does nopt like oneline -- if (IsSoftSuspended) return
-        return 
-    }
-    SkillBarModDebug := false
-    SkillBarOneTimeInputModIsActive := true
-    SkillBarOneTimeInputModCounter := skill
-    if (IsDebugMode) {
-        msg := "LabelChangeBarToTmp SkillBarModCounter is " . SkillBarOneTimeInputModCounter
-        MsgBox, %msg%
-    }
+LabelSoftSuspend:
+    new KeyMapping().FunctionSoftSuspend()
     return
-}
-
-SoftSuspend:
-    IsSoftSuspended := !IsSoftSuspended
-    return
-
 
 LabelNumpad1:
-    Remap(["1", "!", "="])   ; "!"" is funky - calls LabelChangeBarTo1Tmp
-    Return
+    Remap(["1", "!", "="])   ; "!"" is funky - calls LabelChangeBarTo1Tmp because ! = shift + 1
+    return
 LabelNumpad2:
     Remap(["2", "?", ":"])
-    Return
+    return
 LabelNumpad3:
     Remap(["3", "&", "|"])
-    Return
+    return
 LabelNumpad4:
-    Remap(["4", """", "'"])   ; "" is ", """" is funky - calls LabelChangeBarTo2Tmp
-    Return
+    Remap(["4", """", "'"])   ; "" is ", """" is funky - calls LabelChangeBarTo2Tmp because " = shift + 2
+    return
 LabelNumpad5:
     Remap(["5", "<", ">"])
-    Return
+    return
 LabelNumpad6:
     Remap(["6", "*", "/"])
-    Return
+    return
 LabelNumpad7:
     Remap(["7", "(", ")"])
-    Return
+    return
 LabelNumpad8:
     Remap(["8", "[", "]"])
-    Return
+    return
 LabelNumpad9:
     Remap(["9", "{", "}"])
-    Return
+    return
 
 LabelNumpadDot:
     Remap([".", "$", "\"])
-    Return
+    return
 
 
 Remap(keyarr)
 {
-    global IsDebugMode
-    if (IsSoftSuspended) {
-        SendInput %A_ThisHotkey%
-        return
-    }
-    if (SkillBarModDebug) {
-        SendInput {!}
+    global skillBarOneTimeInputModCounter
+    global skillBarModCounter
+    global IS_DEBUG_MODE
+    if (skillBarModDebug) {
+        ; SendInput {!}
         return
     }
     sendVal := ""
-    if (SkillBarOneTimeInputModIsActive) {
-        sendVal := keyarr[SkillBarOneTimeInputModCounter]
-        SkillBarOneTimeInputModIsActive := false
-        if (IsDebugMode) {
-            msgs := "SkillBarOneTimeInputModIsActive"
-            MsgBox, %msgs%
+    if (skillBarOneTimeInputModCounter != -1) {
+        sendVal := keyarr[skillBarOneTimeInputModCounter]
+        if (IS_DEBUG_MODE) {
+            msg := "skillBarOneTimeInputModCounter: " . skillBarOneTimeInputModCounter
+            MsgBox, %msg%
         }
+        skillBarOneTimeInputModCounter := -1
     } else {
-        sendVal := keyarr[SkillBarModCounter]
+        sendVal := keyarr[skillBarModCounter]
     }
     
-    if (IsDebugMode) {
-        msgs := "sendVal is " . sendVal
-        MsgBox, %msgs%
+    if (IS_DEBUG_MODE) {
+        msg := "sendVal is " . sendVal
+        MsgBox, %msg%
     }
     SendInput {%sendVal%}
 
