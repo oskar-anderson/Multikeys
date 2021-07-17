@@ -46,6 +46,7 @@ Unfortunately shift modifier does not work:
 ┤┼├
 └┬┘
 */
+; Git updated user.email test
 
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #InstallKeybdHook
