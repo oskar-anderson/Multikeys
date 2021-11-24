@@ -46,77 +46,128 @@ Unfortunately shift modifier does not work:
 ┤┼├
 └┬┘
 */
-; Git updated user.email test
 
-#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-#InstallKeybdHook
-#CommentFlag ;
+InstallKeybdHook(Install := true, Force := false)
 #Warn  ; Enable warnings to assist with detecting common errors.
+#InputLevel 1  ; Prevent remapping chains
 
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
 ; Alt key is        !
 ; Windows key is    #
 ; Shift key is      +
 ; Control key is    ^
 
-SetCapsLockState, alwaysoff ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
-
-global gKeyMappingInstance := new KeyMapping()
-global IS_DEBUG_MODE := false
-
-Programm.Main()
-return
+SetCapsLockState "AlwaysOff" ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
 
-class Programm {
-    Main(){
-        this.ActivateDebugHotkeys()
-        this.ActivateAllHotkeys(False)
-    }
-
-    ActivateDebugHotkeys()
-    {
-        Hotkey, +Esc, LabelSuspend
-        Hotkey, ^r, LabelReload
-        return
-    }
-
-
-    ActivateAllHotkeys(isDisable = False) 
-    {
-        Hotkey, F9, LabelSoftSuspend
-        this.ActivateMainHotkeys(isDisable) 
-        return
-    }
-
-    ActivateMainHotkeys(isDisable = False) 
-    {
-        state := isDisable ? "Off" : "On"
-        Hotkey, ^1, LabelChangeBarTo1Perm, %state%
-        Hotkey, ^2, LabelChangeBarTo2Perm, %state%
-        Hotkey, ^3, LabelChangeBarTo3Perm, %state%
-        Hotkey, ^4, LabelChangeBarToDebug, %state%
-
-        Hotkey, +1, LabelChangeBarTo1Tmp, %state%
-        Hotkey, +2, LabelChangeBarTo2Tmp, %state%
-        Hotkey, +3, LabelChangeBarTo3Tmp, %state%
-
-        Hotkey, Numpad1, LabelNumpad1, %state%
-        Hotkey, Numpad2, LabelNumpad2, %state%
-        Hotkey, Numpad3, LabelNumpad3, %state%
-        Hotkey, Numpad4, LabelNumpad4, %state%
-        Hotkey, Numpad5, LabelNumpad5, %state%
-        Hotkey, Numpad6, LabelNumpad6, %state%
-        Hotkey, Numpad7, LabelNumpad7, %state%
-        Hotkey, Numpad8, LabelNumpad8, %state%
-        Hotkey, Numpad9, LabelNumpad9, %state%
-        Hotkey, NumpadDot, LabelNumpadDot, %state%
-        
-        return
-    }
+; Debug
+LabelSuspend(ThisHotkey) { 
+    MsgBox A_ThisHotkey . " --- Suspend"
+    Suspend
+    return
 }
+
+LabelReload(ThisHotkey) { 
+    MsgBox A_ThisHotkey . " --- Reloaded"
+    Reload
+    return
+}
+
+LabelChangeBarToDebug(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToDebug()
+    return
+}
+; endDebug
+
+LabelChangeBarTo1Perm(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToPerm(1)
+    return
+}
+
+LabelChangeBarTo2Perm(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToPerm(2)
+    return
+}
+
+LabelChangeBarTo3Perm(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToPerm(3)
+    return
+}
+
+
+LabelChangeBarTo1Tmp(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToTmp(1)
+    return
+}
+
+LabelChangeBarTo2Tmp(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToTmp(2)
+    return
+}
+
+LabelChangeBarTo3Tmp(ThisHotkey) { 
+    gKeyMappingInstance.FunctionChangeBarToTmp(3)
+    return
+}
+
+LabelSoftSuspend(ThisHotkey) { 
+    gKeyMappingInstance.FunctionSoftSuspend()
+    return
+}
+
+Label1(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{!}", "="])
+    return
+}
+
+
+Label2(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "?", ":"])
+    return
+}
+
+Label3(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "&", "|"])
+    return
+}
+
+Label4(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "`"", "'"])  ; syntax highlighting does not seem to understand escaped double quote mark
+    return
+}
+
+Label5(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "<", ">"])
+    return
+}
+
+Label6(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "*", "/"])
+    return
+}
+
+Label7(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "(", ")"])
+    return
+}
+
+Label8(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "[", "]"])
+    return
+}
+
+Label9(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{{}", "{}}"])
+    return
+}
+
+Label10(ThisHotkey) { 
+    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{!}", "="])
+    return
+}
+
 
 class KeyMapping {
     __New() {
@@ -127,8 +178,7 @@ class KeyMapping {
     }
 
     FunctionChangeBarToDebug() {
-        msg := "Debug"
-        MsgBox, %msg%
+        MsgBox "Debug"
         this.skillBarModDebug := true
     }
 
@@ -144,7 +194,7 @@ class KeyMapping {
         this.skillBarOneTimeInputModCounter := skill
         if (IS_DEBUG_MODE) {  ; ahk does not like oneline -- if (condition) return
             msg := "LabelChangeBarToTmp this.skillBarOneTimeInputModCounter is " . this.skillBarOneTimeInputModCounter
-            MsgBox, %msg%
+            MsgBox msg
         }
         return
     }
@@ -153,24 +203,16 @@ class KeyMapping {
         this.isSoftSuspended := !this.isSoftSuspended
         Programm.ActivateMainHotkeys(this.isSoftSuspended)
         msgs := "this.isSoftSuspended: " . this.isSoftSuspended
-        MsgBox, %msgs%
+        MsgBox msgs
         return
     }
 
     Remap(keyarr) 
     {
         global IS_DEBUG_MODE
-        if (this.skillBarModDebug) {    ; Testing
-            SendInput {!}               ; This does not work, check LabelNumpad1
-            return
-        }
         sendVal := ""
         if (this.skillBarOneTimeInputModCounter != -1) {
             sendVal := keyarr[this.skillBarOneTimeInputModCounter]
-            if (IS_DEBUG_MODE) {
-                msg := "this.skillBarOneTimeInputModCounter: " . this.skillBarOneTimeInputModCounter
-                MsgBox, %msg%
-            }
             this.skillBarOneTimeInputModCounter := -1
         } else {
             sendVal := keyarr[this.skillBarModCounter]
@@ -178,89 +220,62 @@ class KeyMapping {
         
         if (IS_DEBUG_MODE) {
             msg := "sendVal is " . sendVal
-            MsgBox, %msg%
+            MsgBox msg
         }
-        SendInput {%sendVal%}
-
-        return
+        return sendVal
     }
 
 }
 
+class Programm {
+    Main(){
+        this.ActivateDebugHotkeys()
+        this.ActivateAllHotkeys()
+    }
 
-; ########################
-; ######   LABELS   ######
-; ########################
-
-; Debug
-LabelSuspend:
-    MsgBox %A_ThisHotkey% --- Suspend
-    Suspend
-    return
-LabelReload:
-    MsgBox %A_ThisHotkey%  --- Reloaded
-    Reload
-    return
-LabelChangeBarToDebug:
-    gKeyMappingInstance.FunctionChangeBarToDebug()
-    return
-; endDebug
-
-LabelChangeBarTo1Perm:
-    gKeyMappingInstance.FunctionChangeBarToPerm(1)
-    return
-LabelChangeBarTo2Perm:
-    gKeyMappingInstance.FunctionChangeBarToPerm(2)
-    return
-LabelChangeBarTo3Perm:
-    gKeyMappingInstance.FunctionChangeBarToPerm(3)
-    return
+    ActivateDebugHotkeys()
+    {
+        Hotkey "+Esc", LabelSuspend
+        Hotkey "^r", LabelReload
+        return
+    }
 
 
-LabelChangeBarTo1Tmp:
-    gKeyMappingInstance.FunctionChangeBarToTmp(1)
-    return
+    ActivateAllHotkeys() 
+    {
+        Hotkey "F9", LabelSoftSuspend
+        this.ActivateMainHotkeys() 
+        return
+    }
 
-LabelChangeBarTo2Tmp:
-    gKeyMappingInstance.FunctionChangeBarToTmp(2)
-    return
+    ActivateMainHotkeys() 
+    {
+        Hotkey "^1", LabelChangeBarTo1Perm
+        Hotkey "^2", LabelChangeBarTo2Perm
+        Hotkey "^3", LabelChangeBarTo3Perm
+        Hotkey "^4", LabelChangeBarToDebug
 
-LabelChangeBarTo3Tmp:
-    gKeyMappingInstance.FunctionChangeBarToTmp(3)
-    return
+        Hotkey "+1", LabelChangeBarTo1Tmp
+        Hotkey "+2", LabelChangeBarTo2Tmp
+        Hotkey "+3", LabelChangeBarTo3Tmp
 
-LabelSoftSuspend:
-    gKeyMappingInstance.FunctionSoftSuspend()
-    return
+        Hotkey "x", Label1
+        Hotkey "c", Label2
+        Hotkey "v", Label3
+        Hotkey "s", Label4
+        Hotkey "d", Label5
+        Hotkey "f", Label6
+        Hotkey "w", Label7
+        Hotkey "e", Label8
+        Hotkey "r", Label9
+        Hotkey "b", Label10
+        return
+    }
+}
 
-LabelNumpad1:
-    gKeyMappingInstance.Remap(["1", "!", "="])   ; "!"" is funky - calls LabelChangeBarTo1Tmp because ! = shift + 1
-    return
-LabelNumpad2:
-    gKeyMappingInstance.Remap(["2", "?", ":"])
-    return
-LabelNumpad3:
-    gKeyMappingInstance.Remap(["3", "&", "|"])
-    return
-LabelNumpad4:
-    gKeyMappingInstance.Remap(["4", """", "'"])   ; "" is ", """" is funky - calls LabelChangeBarTo2Tmp because " = shift + 2
-    return
-LabelNumpad5:
-    gKeyMappingInstance.Remap(["5", "<", ">"])
-    return
-LabelNumpad6:
-    gKeyMappingInstance.Remap(["6", "*", "/"])
-    return
-LabelNumpad7:
-    gKeyMappingInstance.Remap(["7", "(", ")"])
-    return
-LabelNumpad8:
-    gKeyMappingInstance.Remap(["8", "[", "]"])
-    return
-LabelNumpad9:
-    gKeyMappingInstance.Remap(["9", "{", "}"])
-    return
 
-LabelNumpadDot:
-    gKeyMappingInstance.Remap([".", "$", "\"])
-    return
+
+global gKeyMappingInstance := KeyMapping()
+global IS_DEBUG_MODE := true
+
+Programm().Main()
