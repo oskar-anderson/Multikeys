@@ -53,155 +53,37 @@ InstallKeybdHook(Install := true, Force := false)
 
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
+SetCapsLockState "AlwaysOff" ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
 ; Alt key is        !
 ; Windows key is    #
 ; Shift key is      +
 ; Control key is    ^
 
-SetCapsLockState "AlwaysOff" ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
-
-; Debug
-LabelSuspend(ThisHotkey) { 
-    MsgBox A_ThisHotkey . " --- Suspend"
-    Suspend
-    return
-}
-
-LabelReload(ThisHotkey) { 
-    MsgBox A_ThisHotkey . " --- Reloaded"
-    Reload
-    return
-}
-
-LabelChangeBarToDebug(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToDebug()
-    return
-}
-; endDebug
-
-LabelChangeBarTo1Perm(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToPerm(1)
-    return
-}
-
-LabelChangeBarTo2Perm(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToPerm(2)
-    return
-}
-
-LabelChangeBarTo3Perm(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToPerm(3)
-    return
-}
-
-
-LabelChangeBarTo1Tmp(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToTmp(1)
-    return
-}
-
-LabelChangeBarTo2Tmp(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToTmp(2)
-    return
-}
-
-LabelChangeBarTo3Tmp(ThisHotkey) { 
-    gKeyMappingInstance.FunctionChangeBarToTmp(3)
-    return
-}
-
-LabelSoftSuspend(ThisHotkey) { 
-    gKeyMappingInstance.FunctionSoftSuspend()
-    return
-}
-
-Label1(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{!}", "="])
-    return
-}
-
-
-Label2(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "?", ":"])
-    return
-}
-
-Label3(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "&", "|"])
-    return
-}
-
-Label4(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "`"", "'"])  ; syntax highlighting does not seem to understand escaped double quote mark
-    return
-}
-
-Label5(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "<", ">"])
-    return
-}
-
-Label6(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "*", "/"])
-    return
-}
-
-Label7(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "(", ")"])
-    return
-}
-
-Label8(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "[", "]"])
-    return
-}
-
-Label9(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{{}", "{}}"])
-    return
-}
-
-Label10(ThisHotkey) { 
-    SendInput gKeyMappingInstance.Remap([A_ThisHotkey, "{!}", "="])
-    return
-}
 
 
 class KeyMapping {
     __New() {
         this.skillBarModCounter := 1
         this.skillBarOneTimeInputModCounter := -1
-        this.skillBarModDebug := false
         this.isSoftSuspended := false
-    }
-
-    FunctionChangeBarToDebug() {
-        MsgBox "Debug"
-        this.skillBarModDebug := true
     }
 
     FunctionChangeBarToPerm(skill) {
         this.skillBarModCounter := skill
-        this.skillBarModDebug := false
         return
     }
 
     FunctionChangeBarToTmp(skill) {
-        global IS_DEBUG_MODE
-        this.skillBarModDebug := false
         this.skillBarOneTimeInputModCounter := skill
-        if (IS_DEBUG_MODE) {  ; ahk does not like oneline -- if (condition) return
-            msg := "LabelChangeBarToTmp this.skillBarOneTimeInputModCounter is " . this.skillBarOneTimeInputModCounter
-            MsgBox msg
-        }
+        ; MsgBox "LabelChangeBarToTmp this.skillBarOneTimeInputModCounter is " . this.skillBarOneTimeInputModCounter
         return
     }
 
     FunctionSoftSuspend() {
         this.isSoftSuspended := !this.isSoftSuspended
-        Programm.ActivateMainHotkeys(this.isSoftSuspended)
+        Hotkeys.ActivateMainHotkeys(this)
         msgs := "this.isSoftSuspended: " . this.isSoftSuspended
         MsgBox msgs
         return
@@ -209,7 +91,6 @@ class KeyMapping {
 
     Remap(keyarr) 
     {
-        global IS_DEBUG_MODE
         sendVal := ""
         if (this.skillBarOneTimeInputModCounter != -1) {
             sendVal := keyarr[this.skillBarOneTimeInputModCounter]
@@ -218,64 +99,96 @@ class KeyMapping {
             sendVal := keyarr[this.skillBarModCounter]
         }
         
-        if (IS_DEBUG_MODE) {
-            msg := "sendVal is " . sendVal
-            MsgBox msg
-        }
+        ; MsgBox "sendVal is " . sendVal
         return sendVal
     }
 
 }
 
-class Programm {
-    Main(){
-        this.ActivateDebugHotkeys()
-        this.ActivateAllHotkeys()
-    }
-
-    ActivateDebugHotkeys()
+class Hotkeys {
+    static ActivateDebugHotkeys()
     {
-        Hotkey "+Esc", LabelSuspend
-        Hotkey "^r", LabelReload
+        fnSuspend(ThisHotkey) { 
+            MsgBox A_ThisHotkey . " --- Suspend"
+            Suspend
+        }
+
+        fnReload(ThisHotkey) { 
+            MsgBox A_ThisHotkey . " --- Reloaded"
+            Reload
+        }   
+        Hotkey "+Esc", fnSuspend
+        Hotkey "^r", fnReload
         return
     }
 
 
-    ActivateAllHotkeys() 
+    static ActivateAllHotkeys(_keyMapping) 
     {
-        Hotkey "F9", LabelSoftSuspend
-        this.ActivateMainHotkeys() 
+        fnSoftSuspend(ThisHotkey) { 
+            _keyMapping.FunctionSoftSuspend()
+        }
+        Hotkey "F9", fnSoftSuspend
+        this.ActivateMainHotkeys(_keyMapping)
         return
     }
 
-    ActivateMainHotkeys() 
+    static ActivateMainHotkeys(_keyMapping) 
     {
-        Hotkey "^1", LabelChangeBarTo1Perm
-        Hotkey "^2", LabelChangeBarTo2Perm
-        Hotkey "^3", LabelChangeBarTo3Perm
-        Hotkey "^4", LabelChangeBarToDebug
+        activate := _keyMapping.isSoftSuspended ? "Off" : "On"
 
-        Hotkey "+1", LabelChangeBarTo1Tmp
-        Hotkey "+2", LabelChangeBarTo2Tmp
-        Hotkey "+3", LabelChangeBarTo3Tmp
+        ; A_ThisHotkey does not work here
+        labels := [
+            {detect: "x", values: ["x",    "{!}",   "="    ]},
+            {detect: "c", values: ["c",    "?",     ":"    ]},
+            {detect: "v", values: ["v",    "&",     "|"    ]},
+            {detect: "s", values: ["s",    "`"",    "'"    ]},  ; IDE hightlighting fails here
+            {detect: "d", values: ["d",    "<",     ">"    ]},
+            {detect: "f", values: ["f",    "*",     "/"    ]},
+            {detect: "w", values: ["w",    "(",     ")"    ]},
+            {detect: "e", values: ["e",    "[",     "]"    ]},
+            {detect: "r", values: ["r",    "{{}",   "{}}"  ]},
+            {detect: "b", values: ["b",    "{!}",   "="    ]}
+        ]
 
-        Hotkey "x", Label1
-        Hotkey "c", Label2
-        Hotkey "v", Label3
-        Hotkey "s", Label4
-        Hotkey "d", Label5
-        Hotkey "f", Label6
-        Hotkey "w", Label7
-        Hotkey "e", Label8
-        Hotkey "r", Label9
-        Hotkey "b", Label10
+        for k, v in labels {
+            fnPrimaryHotkeys(ThisHotkey, bindArr) 
+            {
+                 ; FROM DOCS: Note: Even if defined inside the loop body, a nested function which refers to a loop variable cannot see or change the current iteration's value. Instead, pass the variable explicitly or bind its value to a parameter.
+                SendInput _keyMapping.Remap(bindArr)
+            }
+            Hotkey v.detect, fnPrimaryHotkeys.Bind(, v.values), activate
+        }
+
+
+        for k, v in [
+            {detectTmp: "+1", detectPerm: "^1", value: "1"}, 
+            {detectTmp: "+2", detectPerm: "^2", value: "2"}, 
+            {detectTmp: "+3", detectPerm: "^3", value: "3"}
+            ] {
+            fnChangeBarToTmp(ThisHotkey, bindValue) { 
+                _keyMapping.FunctionChangeBarToTmp(bindValue)
+            }
+            fnChangeBarToPerm(ThisHotkey, bindValue) {
+                _keyMapping.FunctionChangeBarToPerm(bindValue)
+            }
+            Hotkey v.detectTmp, fnChangeBarToTmp.Bind(, v.value), activate
+            Hotkey v.detectPerm, fnChangeBarToPerm.Bind(, v.value), activate
+
+        }
+
         return
     }
 }
 
+class Programm {
+    Main(){
+        _keyMapping := KeyMapping()
+        Hotkeys.ActivateDebugHotkeys()
+        Hotkeys.ActivateAllHotkeys(_keyMapping)
+    }
+}
 
 
-global gKeyMappingInstance := KeyMapping()
-global IS_DEBUG_MODE := true
 
 Programm().Main()

@@ -1,10 +1,8 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-; #Warn  ; Enable warnings to assist with detecting common errors.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+﻿#Warn  ; Enable warnings to assist with detecting common errors.
+SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
 #UseHook ; is necessary if the script uses the Send command to send the keys that comprise the hotkey itself
-#CommentFlag ;
 
 ; --------------------------------------------------------------------------------------------------------------------
 ; This autohotkey script loops/repeats keypresses when holding down a key. Also with modifers!
@@ -23,27 +21,28 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 keyList := "0,1,2,3,4,5,6,7,8,9"                     ; Numbers 0 - 9
 		. ",q,e,r,t,f,g,z,x,c,v"                     ; Letters q, e, r, t, f, g, z, x, c, v   
 	   
-Loop, Parse, keyList, CSV
+Loop Parse keyList, "CSV"
 {
 	key := 				  A_LoopField
 	ctrlPlusKey := 	"^" . A_LoopField
 	altPlusKey := 	"!" . A_LoopField
 	shiftPlusKey := "+" . A_LoopField
 
-	Hotkey, % key, spamKey	; % var - dynamic-variable
-	Hotkey, % ctrlPlusKey, spamKey
-	Hotkey, % altPlusKey, spamKey
-	Hotkey, % shiftPlusKey, spamKey
+	Hotkey key, 			spamKey
+	Hotkey ctrlPlusKey, 	spamKey
+	Hotkey altPlusKey, 		spamKey
+	Hotkey shiftPlusKey, 	spamKey
 }
 ; ---------------------------------------------------------------------------------------------------------------------
 
-spamKey:
+spamKey(ThisHotkey) {
 	checkKey := RegExReplace(A_ThisHotkey, "[*^!+]")
-	While(GetKeyState(checkKey, "P"))                           ; Starts the loop script below
+	While(GetKeyState(checkKey, "P"))                       ; Starts the loop script below
 	{
-		Send % A_ThisHotkey                  ; Sends and repeats the hotkey
-		sleep 30                             ; How fast it repeats the keypress in milliseconds
+		Send A_ThisHotkey                  					; Sends and repeats the hotkey
+		sleep 30                             				; How fast it repeats the keypress in milliseconds
 	}
 	return
+}
 
 +Esc::Suspend  ; Suspend hotkeys
