@@ -29,15 +29,15 @@ Ctrl + 3 activates values at index  3: x:="=" and c:=":"
 │       │       │       │       │       │       │       │       │
 │       │ CB1   │ CB2   │ CB3   │ CB4   │       │       │       │
 ├───────┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬ 
-│ TAB       │ Q     │ W()┌  │ E[]┬  │ R{}┐  │ T     │       │       │
+│ TAB       │ Q     │ W(/┌  │ E)|┬  │ R[\┐  │ T]*   │       │       │
 │           │       │       │       │       │       │       │       │
 │           │       │       │       │       │       │       │       │
 ├───────────┴─┬─────┴─┬─────┴─┬───────┬─────┴─┬─────┴─┬─────┴─┬─────┴─┬
-│ CAPS        │ A     │ S"'├  │ D<>┼  │ F*/┤  │ G  ─  │       │       │
+│ CAPS        │ A     │ S<"├  │ D>'┼  │ F{`┤  │ G} ─  │       │       │
 │             │       │       │       │       │       │       │       │
 │             │       │       │       │       │       │       │       │
 ├─────────────┴────┬──┴─────┬─┴─────┬─┴─────┬─┴─────┬─┴─────┬─┴─────┬─┴─────┬───────┬
-│ SHIFT            │ Z      │ X!:└  │ C?|┴  │ V&|┘  │ B`  │ │       │       │       │
+│ SHIFT            │ Z      │ X!?└  │ C=:┴  │ V& ┘  │ B  │  │       │       │       │
 │                  │        │       │       │       │       │       │       │       │
 │                  │        │       │       │       │       │       │       │       │
 ├──────────┬───────┴──┬─────┴────┬──┴───────┴───────┴───────┴───────┴───────┴────┬───
@@ -45,3 +45,15 @@ Ctrl + 3 activates values at index  3: x:="=" and c:=":"
 │          │          │          │                                               │
 └──────────┴──────────┴──────────┴───────────────────────────────────────────────┘
 ```
+
+## Setup
+
+Set hotkeys to run on startup:
+1. Download the project
+2. Create a folder "C:\Program Files\Multikeys" and paste project files there
+3. Create a shortcut of `Main.ahk`
+4. Open Run(`Ctrl + R`) and execute command
+```
+shell:startup
+```
+5. A folder should have opened, move the shortcut there

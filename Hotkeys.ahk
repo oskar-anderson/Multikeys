@@ -36,17 +36,18 @@ class Hotkeys {
         
         ; A_ThisHotkey does not work here
         labels := [
-            {detect: "x", values: ["x",    "{!}",   "=",    "└"     ]},
-            {detect: "c", values: ["c",    "?",     ":",    "┴"     ]},
-            {detect: "v", values: ["v",    "&",     "|",    "┘"     ]},
-            {detect: "s", values: ["s",    "`"",    "'",    "├"     ]},  ; IDE hightlighting fails here
-            {detect: "d", values: ["d",    "<",     ">",    "┼"     ]},
-            {detect: "f", values: ["f",    "*",     "/",    "┤"     ]},
-            {detect: "w", values: ["w",    "(",     ")",    "┌"     ]},
-            {detect: "e", values: ["e",    "[",     "]",    "┬"     ]},
-            {detect: "r", values: ["r",    "{{}",   "{}}",  "┐"     ]},
-            {detect: "b", values: ["b",    "``",    " ",     "│"    ]},
-            {detect: "g", values: ["g",    " ",     " ",     "─"    ]}
+            {detect: "x", values: ["x",    "{!}",   "?",    "└"     ]},
+            {detect: "c", values: ["c",    "=",     " ",    "┴"     ]},
+            {detect: "v", values: ["v",    "+",     "*",    "┘"     ]},
+            {detect: "b", values: ["b",    "-",     ":",    "│"     ]},
+            {detect: "s", values: ["s",    "<",     "`"",   "├"     ]},  ; IDE hightlighting fails here
+            {detect: "d", values: ["d",    ">",     "'",    "┼"     ]},
+            {detect: "f", values: ["f",    "{{}",   "``",   "┤"     ]},
+            {detect: "g", values: ["g",    "{}}",   " ",    "─"     ]},
+            {detect: "w", values: ["w",    "(",     "/",    "┌"     ]},
+            {detect: "e", values: ["e",    ")",     "|",    "┬"     ]},
+            {detect: "r", values: ["r",    "[",     "\",    "┐"     ]},
+            {detect: "t", values: ["t",    "]",     "&",     " "    ]}
         ]
 
         for k, v in labels {
