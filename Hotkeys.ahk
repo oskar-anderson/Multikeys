@@ -38,7 +38,7 @@ class Hotkeys {
         labels := [
             {detect: "x", values: ["x",    "{!}",   "?",    "└"     ]},
             {detect: "c", values: ["c",    "=",     " ",    "┴"     ]},
-            {detect: "v", values: ["v",    "+",     "*",    "┘"     ]},
+            {detect: "v", values: ["v",    "{+}",   "*",    "┘"     ]},
             {detect: "b", values: ["b",    "-",     ":",    "│"     ]},
             {detect: "s", values: ["s",    "<",     "`"",   "├"     ]},  ; IDE hightlighting fails here
             {detect: "d", values: ["d",    ">",     "'",    "┼"     ]},
