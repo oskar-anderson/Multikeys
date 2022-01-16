@@ -20,17 +20,17 @@ class Hotkeys {
     }
 
 
-    ActivateAllHotkeys(_keyMapping) 
+    static ActivateAllHotkeys(_keyMapping) 
     {
         fnSoftSuspend(ThisHotkey) { 
             _keyMapping.FunctionSoftSuspend()
         }
         Hotkey("F9", fnSoftSuspend)
-        this.ActivateMainHotkeys(_keyMapping)
+        Hotkeys.ActivateMainHotkeys(_keyMapping)
         return
     }
 
-    ActivateMainHotkeys(_keyMapping) 
+    static ActivateMainHotkeys(_keyMapping) 
     {
         activate := _keyMapping.isSoftSuspended ? "Off" : "On"
         

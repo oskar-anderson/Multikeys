@@ -34,7 +34,7 @@ class Programm {
         _keyMapping := KeyMapping()
         _hotkeys := Hotkeys()
         _hotkeys.ActivateDebugHotkeys()
-        _hotkeys.ActivateAllHotkeys(_keyMapping)
+        Hotkeys.ActivateAllHotkeys(_keyMapping)
 
         ; TESTING:
         ; Programm.fnMsgStatic()
