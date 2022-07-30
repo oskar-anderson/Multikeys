@@ -33,8 +33,14 @@ class KeyMapping {
         } else {
             sendVal := keyarr[this.skillBarModCounter]
         }
+
+        ; bind to itself on empty bind
+        if (sendVal == "") {
+            ; 1 if CapsLock is ON, 0 otherwise
+            sendVal := GetKeyState("Capslock", "T") ? StrUpper(A_ThisHotkey) : A_ThisHotkey
+        }
         
-        ; MsgBox("sendVal is " . sendVal)
+        ; MsgBox("sendVal is '" . sendVal . "', A_ThisHotkey: '" . A_ThisHotkey . "'")
         return sendVal
     }
 

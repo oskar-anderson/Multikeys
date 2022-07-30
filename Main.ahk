@@ -16,7 +16,7 @@ InstallKeybdHook(Install := true, Force := false)
 
 SendMode("Input")  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir(A_ScriptDir)  ; Ensures a consistent starting directory.
-SetCapsLockState("AlwaysOff") ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
+; SetCapsLockState("AlwaysOff") ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
 ; Alt key is        !
 ; Windows key is    #
@@ -47,12 +47,6 @@ class Programm {
     fnMsgInstance() {
         MsgBox("Hello instance method")
     }
-}
-
-
-; Setting hotkey actions by closures and global function delegates is okey, but calling functions inside classes seems to be not
-CallbackActionInsideClassOutSideFunctionNotCallingHack(ThisHotkey, fn) {
-    fn(A_ThisHotkey, ThisHotkey)
 }
 
 Programm().Main()

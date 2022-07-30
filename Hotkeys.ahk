@@ -1,22 +1,25 @@
 class Hotkeys {
 
+    GetFuncReload() {
+        ; I am not sure why the function delegate cannot be defined directly
+        f(ThisHotkey) {
+            MsgBox(A_ThisHotkey . " --- Reloaded" . ThisHotkey)
+            Reload()
+        }
+        return f
+    }
+
     ActivateDebugHotkeys()
     {
-        fnSuspend(ThisHotkey) { 
+        funcSuspend(ThisHotkey) { 
             MsgBox(A_ThisHotkey . " --- Suspend")
             Suspend()
         }
 
 
-        Hotkey("+Esc", fnSuspend)
-        v := CallbackActionInsideClassOutSideFunctionNotCallingHack.Bind(, this.fnReload)
-        Hotkey("^r", v)
+        Hotkey("+Esc", funcSuspend)
+        Hotkey("^r", this.GetFuncReload())
         return
-    }
-
-    fnReload(ThisHotkey) { 
-        MsgBox(A_ThisHotkey . " --- Reloaded" . ThisHotkey)
-        Reload()
     }
 
 
@@ -35,25 +38,26 @@ class Hotkeys {
         activate := _keyMapping.isSoftSuspended ? "Off" : "On"
         
         ; A_ThisHotkey does not work here
+        ; AHK HAS no null concept unfortunately
         labels := [
-            {detect: "x", values: ["x",    "{!}",   "?",    "└"     ]},
-            {detect: "c", values: ["c",    "=",     " ",    "┴"     ]},
-            {detect: "v", values: ["v",    "{+}",   "*",    "┘"     ]},
-            {detect: "b", values: ["b",    "-",     ":",    "│"     ]},
-            {detect: "s", values: ["s",    "<",     "`"",   "├"     ]},  ; IDE hightlighting fails here
-            {detect: "d", values: ["d",    ">",     "'",    "┼"     ]},
-            {detect: "f", values: ["f",    "{{}",   "``",   "┤"     ]},
-            {detect: "g", values: ["g",    "{}}",   " ",    "─"     ]},
-            {detect: "w", values: ["w",    "(",     "/",    "┌"     ]},
-            {detect: "e", values: ["e",    ")",     "|",    "┬"     ]},
-            {detect: "r", values: ["r",    "[",     "\",    "┐"     ]},
-            {detect: "t", values: ["t",    "]",     "&",     " "    ]}
+            {detect: "x", values: ["",    "{!}",   "?",    "└"     ]},
+            {detect: "c", values: ["",    "=",     " ",    "┴"     ]},
+            {detect: "v", values: ["",    "{+}",   "*",    "┘"     ]},
+            {detect: "b", values: ["",    "-",     ":",    "│"     ]},
+            {detect: "s", values: ["",    "<",     "`"",   "├"     ]},  ; IDE hightlighting fails here
+            {detect: "d", values: ["",    ">",     "'",    "┼"     ]},
+            {detect: "f", values: ["",    "{{}",   "``",   "┤"     ]},
+            {detect: "g", values: ["",    "{}}",   " ",    "─"     ]},
+            {detect: "w", values: ["",    "(",     "/",    "┌"     ]},
+            {detect: "e", values: ["",    ")",     "|",    "┬"     ]},
+            {detect: "r", values: ["",    "[",     "\",    "┐"     ]},
+            {detect: "t", values: ["",    "]",     "&",     " "    ]}
         ]
 
         for k, v in labels {
             fnPrimaryHotkeys(ThisHotkey, bindArr) 
             {
-                 ; FROM DOCS: Note: Even if defined inside the loop body, a nested function which refers to a loop variable cannot see or change the current iteration's value. Instead, pass the variable explicitly or bind its value to a parameter.
+                ; FROM DOCS: Note: Even if defined inside the loop body, a nested function which refers to a loop variable cannot see or change the current iteration's value. Instead, pass the variable explicitly or bind its value to a parameter.
                 SendInput(_keyMapping.Remap(bindArr))
             }
             Hotkey(v.detect, fnPrimaryHotkeys.Bind(, v.values), activate)

@@ -16,9 +16,11 @@ Can cause problems with games not registering remapped keys anymore.
 ```
 Mapping for x and c keys:
 
-{ detect: "x", values: ["x", "{!}", "=", "└"]}
-{ detect: "c", values: ["c", "?",   ":", "┴"]}
+{ detect: "x", values: ["", "{!}", "=", "└"]}
+{ detect: "c", values: ["", "?",   ":", "┴"]}
 
+
+Empty string (null in AHK) gets mapped to itself, case-sensitive
 Ctrl + 1 activates values at index 1: x:="x" and c:="c"
 Ctrl + 2 activates values at index 2: x:="!" and c:="?"
 Ctrl + 3 activates values at index 3: x:="=" and c:=":"
