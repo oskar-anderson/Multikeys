@@ -16,8 +16,9 @@ Can cause problems with games not registering remapped keys anymore.
 ```
 Mapping for x and c keys:
 
-{ detect: "x", values: ["", "{!}", "=", "└"]}
-{ detect: "c", values: ["", "?",   ":", "┴"]}
+some new changes
+{ detect: "x", values: ["x", "{!}", "=", "└"]}
+{ detect: "c", values: ["c", "?",   ":", "┴"]}
 
 
 Empty string (null in AHK) gets mapped to itself, case-sensitive
