@@ -7,6 +7,12 @@ Notes:
 ┌┴┐
 ┤┼├
 └┬┘
+
+Alt key is        !
+Windows key is    #
+Shift key is      +
+Control key is    ^
+
 */
 
 InstallKeybdHook(Install := true, Force := false)
@@ -18,35 +24,17 @@ SendMode("Input")  ; Recommended for new scripts due to its superior speed and r
 SetWorkingDir(A_ScriptDir)  ; Ensures a consistent starting directory.
 ; SetCapsLockState("AlwaysOff") ; (CapsLock) or (Shift + CapsLock) will not turn on CapsLock
 
-; Alt key is        !
-; Windows key is    #
-; Shift key is      +
-; Control key is    ^
-
-
-
 
 #include "KeyMapping.ahk"
 #include "Hotkeys.ahk"
 
 class Programm {
-    Main(){
+    static Main(){
+        ; have to prepend _, otherwise "local variable has the same name as a global variable" error
         _keyMapping := KeyMapping()
-        _hotkeys := Hotkeys()
-        _hotkeys.ActivateDebugHotkeys()
         Hotkeys.ActivateAllHotkeys(_keyMapping)
-
-        ; TESTING:
-        ; Programm.fnMsgStatic()
-        ; this.fnMsgInstance()
-    }
-
-    static fnMsgStatic() {  ; cannot find any info on static functions, but they seem to exist
-        MsgBox("Hello from static")
-    }
-    fnMsgInstance() {
-        MsgBox("Hello instance method")
     }
 }
 
-Programm().Main()
+; SetKeyDelay(1000) ; does not work in SendMode("Input")
+Programm.Main()
