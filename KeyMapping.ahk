@@ -4,10 +4,6 @@ class KeyMapping {
         this.isSoftSupressed := True
     }
 
-    ChangeProfile(profile) {
-        this.profile := profile
-    }
-
     Remap(keyarr) 
     {
         sendVal := keyarr[this.profile]

@@ -26,6 +26,7 @@ class Hotkeys {
     static ActivateMainHotkeys(_keyMapping) 
     {
         ; AHK HAS no null concept unfortunately so "" empty string is used
+        ; Some characters need to be escaped with squiggly brackets - {}, some with prepending a backtict - `
         labels := [
             {detect: "x", values: ["",    "{!}",   "?",    "└"     ]},
             {detect: "c", values: ["",    "=",     " ",    "┴"     ]},
@@ -52,15 +53,15 @@ class Hotkeys {
 
 
         for k, v in [
-            { detect: "^1", value: "1"}, 
-            { detect: "^2", value: "2"}, 
-            { detect: "^3", value: "3"},
-            { detect: "^4", value: "4"}
+            { detect: "^1", value: 1}, 
+            { detect: "^2", value: 2}, 
+            { detect: "^3", value: 3},
+            { detect: "^4", value: 4}
         ] {
             fnChangeProfile(ThisHotkey, bindValue) {
                 if (_keyMapping.profile != bindValue) {
                     _keyMapping.isSoftSupressed := bindValue == 1
-                    _keyMapping.ChangeProfile(bindValue)
+                    _keyMapping.profile := bindValue
                     Hotkeys.ActivateMainHotkeys(_keyMapping)
                     return
                 }
