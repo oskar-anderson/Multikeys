@@ -1,40 +1,34 @@
 # Multikeys
 
-AutoHotkey v2 script for mapping multiple characters to single keyboard button.
+Map inconvenient keyboard characters to user-friendly positions. Allows multiple character set profiles for more flexibility.
 
-Useful for:
-* Remapping frequently used programming symbols
-* One layout for different language settings[^1]
-* One layout for laptop and external desktop keyboards
-* ASCII art
-
-Can cause problems with games not registering remapped keys anymore. 
-
-[^1]: Result depends on active character set. But common Latin letters [a-zA-Z] should stay the same.
- 
-## Quick example:
-```
-Mapping for x and c keys:
-
-some new changes
-{ detect: "x", values: ["x", "{!}", "=", "└"]}
-{ detect: "c", values: ["c", "?",   ":", "┴"]}
+## Purpose:
+* Remap keyboard keys (programming symbols, ASCII art or anything else) to more convenient positions
+* One layout for different keyboards
+* No more switching between different keyboard languages
 
 
-Empty string (null in AHK) gets mapped to itself, case-sensitive
-Ctrl + 1 activates values at index 1: x:="x" and c:="c"
-Ctrl + 2 activates values at index 2: x:="!" and c:="?"
-Ctrl + 3 activates values at index 3: x:="=" and c:=":"
-...
+## Setup
+Made with AutoHotkey v2, supports Windows 7 and later. **AutoHotkey v2** needs to be installed for this script to work. Check AutoHotkey v2 installation instructions at [this link](https://www.autohotkey.com/v2/).
 
-AHK is a indexes start with 1 kind of language.
-```
+Once AutoHotkey v2 is installed:
+1. Download the project
+2. Create a folder `"C:\Program Files\Multikeys"` and paste project files there.
+3. You should now be able to double click on `"Main.ahk"` and the programm should start running in the background as a system tray icon.
+
+It is rather inconvenient having to manually run the file after every restart. To make the script run on startup:
+1. Create a shortcut of `Main.ahk`
+2. Open Run(`Ctrl + R`) and execute command `shell:startup`
+3. A folder should have opened, move the shortcut there
+
+Custom remapping can be achieved by changing the `Hotkeys.ahk` file. Default remapping is using the schema described in chapter [Legend](#Legend).
+
 
 ## Legend
 ```
 ┌───────┬───────┬───────┬───────┬───────┬───────┬───────┬───────┬ 
 │ ˇ     │ 1     │ 2     │ 3     │ 4     │ 5     │ 6     │ 7     │
-│       │ CB1   │ CB2   │ CB3   │ CB4   │       │       │       │
+│       │ Prfl1 │ Prfl2 │ Prfl3 │ Prfl4 │       │       │       │
 ├───────┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬───┴───┬ 
 │ TAB       │ Q     │ W(/┌  │ E)|┬  │ R[\┐  │ T]&   │       │       │
 │           │       │       │       │       │       │       │       │
@@ -48,15 +42,11 @@ AHK is a indexes start with 1 kind of language.
 │ CTRL     │ WIN      │ ALT      │                     SPACE                     │
 │          │          │          │                                               │
 └──────────┴──────────┴──────────┴───────────────────────────────────────────────┘
-
-CB - Change bar, Ctrl + CB# changes active character set to number #
 ```
+Prfl# - Profile index, Ctrl + Prfl# changes character set to index #. Index 1 will use regular keys.
+Keymappings are specified in `Hotkeys.ahk` file.
 
-## Setup
-
-Set hotkeys to run on startup:
-1. Download the project
-2. Create a folder "C:\Program Files\Multikeys" and paste project files there
-3. Create a shortcut of `Main.ahk`
-4. Open Run(`Ctrl + R`) and execute command `shell:startup`
-5. A folder should have opened, move the shortcut there
+Example:
+* `Ctrl + 1` activates values at index 1: `w->w` and `e->e` and `r->r`
+* `Ctrl + 2` activates values at index 2: `w->(` and `e->)` and `r->[`
+* `Ctrl + 3` activates values at index 3: `w->/` and `e->|` and `r->\`
